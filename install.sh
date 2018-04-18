@@ -148,11 +148,11 @@ if [ $INSTALL_DRIVERS == true ] ; then
 fi
 
 echo "Installing Google Earth..."
-wget -q $EARTH_DEB
-sudo dpkg -i google-earth-stable*.deb
-sudo apt-get -yq -f install
-sudo dpkg -i google-earth-stable*.deb
-rm google-earth-stable*.deb
+sudo apt install googleearth-package -y
+make-googleearth-package --force
+sudo apt-get -f install -y
+sudo dpkg -i googleearth_6.0.3.2197+1.2.0-1_amd64.deb
+sudo apt-get -f install -y
 
 # OS config tweaks (like disabling idling, hiding launcher bar, ...)
 echo "Setting system configuration..."
