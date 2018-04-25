@@ -28,13 +28,13 @@ INSTALL_DRIVERS_CHAR="n"
 LG_FRAMES="lg3 lg1 lg2"
 OCTET="42"
 SCREEN_ORIENTATION="V"
-GIT_FOLDER_NAME="liquid-galaxy"
-GIT_URL="https://github.com/LiquidGalaxyLAB/liquid-galaxy"
+GIT_FOLDER_NAME="LGxEDU"
+GIT_URL="https://github.com/LiquidGalaxyLAB/LGxEDU"
 EARTH_DEB="http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb"
 if [ `getconf LONG_BIT` = "64" ]; then
 EARTH_DEB="http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb"
 fi
-EARTH_FOLDER="/opt/google/earth/pro/"
+EARTH_FOLDER="/usr/bin/"
 NETWORK_INTERFACE=$(/sbin/route -n | grep "^0.0.0.0" | rev | cut -d' ' -f1 | rev)
 NETWORK_INTERFACE_MAC=$(/sbin/ifconfig | grep $NETWORK_INTERFACE | awk '{print $5}')
 SSH_PASSPHRASE=""
@@ -201,7 +201,7 @@ done
 sudo cp -r . $HOME
 cd - > /dev/null
 
-sudo cp -r $GIT_FOLDER_NAME/gnu_linux/etc/ $GIT_FOLDER_NAME/gnu_linux/patches/ $GIT_FOLDER_NAME/gnu_linux/sbin/ /
+sudo cp -r $GIT_FOLDER_NAME/gnu_linux/etc/ $GIT_FOLDER_NAME/gnu_linux/patches/ $GIT_FOLDER_NAME/gnu_linux/sbin/ / #Estem aqui!!
 
 sudo chmod 0440 /etc/sudoers.d/42-lg
 sudo ln -s /etc/apparmor.d/sbin.dhclient /etc/apparmor.d/disable/
