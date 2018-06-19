@@ -140,7 +140,7 @@ echo "Upgrading system packages ..."
 sudo apt-get -yq upgrade
 
 echo "Installing new packages..."
-sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip apparmor apparmor-utils
+sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip apparmor apparmor-utils wish
 
 if [ $INSTALL_DRIVERS == true ] ; then
 	echo "Installing extra drivers..."
