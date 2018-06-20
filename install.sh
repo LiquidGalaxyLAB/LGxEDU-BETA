@@ -140,7 +140,7 @@ echo "Upgrading system packages ..."
 sudo apt-get -yq upgrade
 
 echo "Installing new packages..."
-sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip apparmor apparmor-utils wish
+sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip wish network-manager
 
 if [ $INSTALL_DRIVERS == true ] ; then
 	echo "Installing extra drivers..."
@@ -154,25 +154,6 @@ sudo apt-get -f install -y
 sudo dpkg -i googleearth_6.0.3.2197+1.2.0-1_amd64.deb
 sudo apt-get -f install -y
 
-# OS config tweaks (like disabling idling, hiding launcher bar, ...)
-echo "Setting system configuration..."
-sudo tee /etc/lightdm/lightdm.conf > /dev/null << EOM
-[Seat:*]
-autologin-guest=false
-autologin-user=$LOCAL_USER
-autologin-user-timeout=0
-autologin-session=ubuntu
-EOM
-echo autologin-user=lg >> sudo /etc/lightdm/lightdm.conf
-gsettings set org.gnome.desktop.screensaver idle-activation-enabled false
-gsettings set org.gnome.desktop.session idle-delay 0
-gsettings set org.gnome.desktop.screensaver lock-enabled false
-gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
-echo -e 'Section "ServerFlags"\nOption "blanktime" "0"\nOption "standbytime" "0"\nOption "suspendtime" "0"\nOption "offtime" "0"\nEndSection' | sudo tee -a /etc/X11/xorg.conf > /dev/null
-gsettings set org.compiz.unityshell:/org/compiz/profiles/unity/plugins/unityshell/ launcher-hide-mode 1
-sudo update-alternatives --set x-www-browser /usr/bin/chromium-browser
-sudo update-alternatives --set gnome-www-browser /usr/bin/chromium-browser
-sudo apt-get remove --purge -yq update-notifier*
 
 #
 # Liquid Galaxy
@@ -184,6 +165,7 @@ git clone $GIT_URL
 
 sudo cp -r $GIT_FOLDER_NAME/earth/ $HOME
 sudo ln -s $EARTH_FOLDER $HOME/earth/builds/latest
+sudo ln -s /usr/lib/googleearth/drivers.ini $HOME/earth/builds/latest/drivers.ini
 awk '/LD_LIBRARY_PATH/{print "export LC_NUMERIC=en_US.UTF-8"}1' $HOME/earth/builds/latest/googleearth | sudo tee $HOME/earth/builds/latest/googleearth > /dev/null
 
 # Enable solo screen for slaves
@@ -204,9 +186,6 @@ cd - > /dev/null
 sudo cp -r $GIT_FOLDER_NAME/gnu_linux/etc/ $GIT_FOLDER_NAME/gnu_linux/patches/ $GIT_FOLDER_NAME/gnu_linux/sbin/ / #Estem aqui!!
 
 sudo chmod 0440 /etc/sudoers.d/42-lg
-sudo ln -s /etc/apparmor.d/sbin.dhclient /etc/apparmor.d/disable/
-sudo apparmor_parser -R /etc/apparmor.d/sbin.dhclient
-sudo /etc/init.d/apparmor restart > /dev/null
 sudo chown -R $LOCAL_USER:$LOCAL_USER $HOME
 sudo chown $LOCAL_USER:$LOCAL_USER /home/lg/earth/builds/latest/drivers.ini
 
