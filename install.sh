@@ -279,7 +279,7 @@ sudo tee -a "/etc/hosts.squid" > /dev/null 2>&1 << EOM
 10.42.$OCTET.7  lg7
 10.42.$OCTET.8  lg8
 EOM
-sudo tee "/etc/iptables.conf" > /dev/null << EOM
+sudo tee "/etc/iptables.rules" > /dev/null << EOM
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
