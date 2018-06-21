@@ -295,6 +295,8 @@ sudo tee "/etc/iptables.conf" > /dev/null << EOM
 -A INPUT -s 10.42.$OCTET.0/24 -p udp -m multiport --dports 80,3128,3130 -j ACCEPT
 -A INPUT -s 10.42.$OCTET.0/24 -p tcp -m multiport --dports 9335 -j ACCEPT
 -A INPUT -s 10.42.$OCTET.0/24 -d 10.42.$OCTET.255/32 -p udp -j ACCEPT
+-A INPUT -p tcp --dport ssh -j ACCEPT
+-A OUTPUT -p tcp --sport 22 -j ACCEPT
 -A INPUT -j DROP
 -A FORWARD -j DROP
 COMMIT
@@ -305,6 +307,13 @@ COMMIT
 :POSTROUTING ACCEPT [358:22379]
 COMMIT
 EOM
+
+# Create subnet
+sudo ip addr add 10.42.$OCTET.$MACHINE_ID/28 dev eth0
+
+# If master, enable ssh daemon on startup
+if [ $MASTER == true]; then
+	sudo systemctl enable ssh
 
 # Launch on boot
 mkdir -p $HOME/.config/autostart/
