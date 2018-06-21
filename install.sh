@@ -290,7 +290,7 @@ sudo iptables -F
 sudo ip addr add 10.42.$OCTET.$MACHINE_ID/28 dev eth0
 
 # If master, enable ssh daemon on startup
-if [ $MASTER == true]; then
+if [ $MASTER == true ]; then
 	sudo systemctl enable ssh
 fi
 
