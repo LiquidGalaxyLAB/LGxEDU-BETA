@@ -249,10 +249,17 @@ sed -i "s/\(DHCP_OCTET *= *\).*/\1$OCTET/" $HOME/personavars.txt
 sudo $HOME/bin/personality.sh $MACHINE_ID $OCTET > /dev/null
 
 # Network configuration
-sudo tee -a "/etc/network/interfaces" > /dev/null << EOM
+sudo tee -a "/etc/network/interfaces" > /dev/null 2>&1 << EOM
 auto eth0
 iface eth0 inet dhcp
+
+auto eth0:$MACHINE_ID
+iface eth0:$MACHINE_ID inet static
+address 10.42.$OCTET.$MACHINE_ID
+gateway 10.42.42.0
+netmask 255.255.255.0
 EOM
+
 sudo sed -i "s/\(managed *= *\).*/\1true/" /etc/NetworkManager/NetworkManager.conf
 echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"eth0\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
 sudo sed -i '/lgX.liquid.local/d' /etc/hosts
@@ -285,9 +292,6 @@ sudo iptables -P INPUT ACCEPT
 sudo iptables -P OUTPUT ACCEPT
 sudo iptables -P FORWARD ACCEPT
 sudo iptables -F
-
-# Create subnet
-sudo ip addr add 10.42.$OCTET.$MACHINE_ID/28 dev eth0
 
 # If master, enable ssh daemon on startup
 if [ $MASTER == true ]; then
