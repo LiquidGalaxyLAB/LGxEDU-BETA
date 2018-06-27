@@ -41,20 +41,7 @@ while getopts :hf: opt; do
   esac
 done
 
-RELAUNCH_CMD="\
-if [ -f /etc/init/lxdm.conf ]; then
-  export SERVICE=lxdm
-elif [ -f /etc/init/lightdm.conf ]; then
-  export SERVICE=lightdm
-else
-  exit 1
-fi
-if [[ \$(service \$SERVICE status) =~ 'stop' ]]; then
-  service \${SERVICE} start
-else
-  service \${SERVICE} restart
-fi
-"
+
 
 if test "$frame"; then
   echo "${frame}:"
