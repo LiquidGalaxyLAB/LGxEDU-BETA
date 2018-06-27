@@ -32,13 +32,13 @@ if [[ "$( id -un )" == "lg" ]]; then
         if [[ -d ${screen} ]]; then
             screennum=${screen##/home/lgS}
             logger -p local3.info -i "$0: launching $ME for my screen \"${screennum}\""
-            sudo -u lgS${screennum} -H DISPLAY=:0.${screennum} ${SCRIPDIR}/${ME} ${@} &
+            sudo -u lgS${screennum} -H DISPLAY=:1.${screennum} ${SCRIPDIR}/${ME} ${@} &
             unset screennum
         fi
     done
 fi
 
-[[ -n "${DISPLAY}" ]] || export DISPLAY=:0.0
+[[ -n "${DISPLAY}" ]] || export DISPLAY=:1
 [ ${DISPLAY##*\.} -ne 0 ] && export SCREEN_NO=${DISPLAY##*\.}
 export __GL_SYNC_TO_VBLANK=1  # broken for nvidia when rotating screen
 
@@ -78,7 +78,7 @@ while true ; do
     # shove mouse over to touchscreen interface
 
     # move mouse
-    DISPLAY=:0 /usr/bin/xdotool mousemove -screen 0 1190 1910
+    DISPLAY=:1 /usr/bin/xdotool mousemove -screen 0 1190 1910
 
     logger -p local3.info -i "$0: running earth"
     ./googleearth -style cleanlooks -font '-adobe-helvetica-bold-r-normal-*-3-*-*-*-p-*-iso8859-1'
