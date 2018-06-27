@@ -27,7 +27,6 @@ if [[ $FRAME_NO = 0 ]]; then
 
     #nitrogen --set-zoom-fill ${XDG_PICTURES_DIR}/backgrounds/lg-bg-${FRAME_NO}.png &
     ${SCRIPDIR}/launch-earth.sh &
-    ${HOME}/bin/earth.tcl &
 elif [[ $FRAME_NO -ge 1 ]]; then
     #nitrogen --set-zoom-fill ${XDG_PICTURES_DIR}/backgrounds/lg-bg-${FRAME_NO}.png &
 echo "Slave: LG$((FRAME_NO+1))"
