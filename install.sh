@@ -260,6 +260,9 @@ gateway 10.42.42.0
 netmask 255.255.255.0
 EOM
 
+# In-session network configuration
+sudo ip addr add 10.42.$OCTET.$MACHINE_ID dev eth0
+
 sudo sed -i "s/\(managed *= *\).*/\1true/" /etc/NetworkManager/NetworkManager.conf
 echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"eth0\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
 sudo sed -i '/lgX.liquid.local/d' /etc/hosts
@@ -298,6 +301,9 @@ if [ $MASTER == true ]; then
 	sudo systemctl enable ssh
 fi
 
+# In-session ssh daemon start
+sudo service ssh start
+
 # Launch on boot
 mkdir -p $HOME/.config/autostart/
 echo -e "[Desktop Entry]\nName=LG\nExec=bash "$HOME"/bin/startup-script.sh\nType=Application" > $HOME"/.config/autostart/lg.desktop"
@@ -324,7 +330,7 @@ echo "Cleaning up..."
 sudo apt-get -yq autoremove
 
 if [ `getconf LONG_BIT` = "64" ]; then
-echo “Installing additional libraries for 64 bit OS”
+echo "Installing additional libraries for 64 bit OS"
 sudo apt-get install -y libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
 fi
 
