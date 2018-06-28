@@ -163,9 +163,6 @@ sudo apt-get -f install -y
 echo "Setting up Liquid Galaxy..."
 git clone $GIT_URL
 
-# REMOVE THIS LINE IF BRANCH IS MASTER
-git checkout script
-
 sudo cp -r $GIT_FOLDER_NAME/earth/ $HOME
 sudo ln -s $EARTH_FOLDER $HOME/earth/builds/latest
 sudo ln -s /usr/lib/googleearth/drivers.ini $HOME/earth/builds/latest/drivers.ini
