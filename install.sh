@@ -28,13 +28,13 @@ INSTALL_DRIVERS_CHAR="n"
 LG_FRAMES="lg3 lg1 lg2"
 OCTET="42"
 SCREEN_ORIENTATION="V"
-GIT_FOLDER_NAME="liquid-galaxy"
-GIT_URL="https://github.com/LiquidGalaxyLAB/liquid-galaxy"
+GIT_FOLDER_NAME="LGxEDU"
+GIT_URL="https://github.com/LiquidGalaxyLAB/LGxEDU"
 EARTH_DEB="http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb"
 if [ `getconf LONG_BIT` = "64" ]; then
 EARTH_DEB="http://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb"
 fi
-EARTH_FOLDER="/opt/google/earth/pro/"
+EARTH_FOLDER="/usr/bin/"
 NETWORK_INTERFACE=$(/sbin/route -n | grep "^0.0.0.0" | rev | cut -d' ' -f1 | rev)
 NETWORK_INTERFACE_MAC=$(/sbin/ifconfig | grep $NETWORK_INTERFACE | awk '{print $5}')
 SSH_PASSPHRASE=""
@@ -140,7 +140,7 @@ echo "Upgrading system packages ..."
 sudo apt-get -yq upgrade
 
 echo "Installing new packages..."
-sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter
+sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip wish network-manager
 
 if [ $INSTALL_DRIVERS == true ] ; then
 	echo "Installing extra drivers..."
@@ -154,25 +154,6 @@ sudo apt-get -f install -y
 sudo dpkg -i googleearth_6.0.3.2197+1.2.0-1_amd64.deb
 sudo apt-get -f install -y
 
-# OS config tweaks (like disabling idling, hiding launcher bar, ...)
-echo "Setting system configuration..."
-sudo tee /etc/lightdm/lightdm.conf > /dev/null << EOM
-[Seat:*]
-autologin-guest=false
-autologin-user=$LOCAL_USER
-autologin-user-timeout=0
-autologin-session=ubuntu
-EOM
-echo autologin-user=lg >> sudo /etc/lightdm/lightdm.conf
-gsettings set org.gnome.desktop.screensaver idle-activation-enabled false
-gsettings set org.gnome.desktop.session idle-delay 0
-gsettings set org.gnome.desktop.screensaver lock-enabled false
-gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
-echo -e 'Section "ServerFlags"\nOption "blanktime" "0"\nOption "standbytime" "0"\nOption "suspendtime" "0"\nOption "offtime" "0"\nEndSection' | sudo tee -a /etc/X11/xorg.conf > /dev/null
-gsettings set org.compiz.unityshell:/org/compiz/profiles/unity/plugins/unityshell/ launcher-hide-mode 1
-sudo update-alternatives --set x-www-browser /usr/bin/chromium-browser
-sudo update-alternatives --set gnome-www-browser /usr/bin/chromium-browser
-sudo apt-get remove --purge -yq update-notifier*
 
 #
 # Liquid Galaxy
@@ -182,8 +163,12 @@ sudo apt-get remove --purge -yq update-notifier*
 echo "Setting up Liquid Galaxy..."
 git clone $GIT_URL
 
+# REMOVE THIS LINE IF BRANCH IS MASTER
+git checkout script
+
 sudo cp -r $GIT_FOLDER_NAME/earth/ $HOME
 sudo ln -s $EARTH_FOLDER $HOME/earth/builds/latest
+sudo ln -s /usr/lib/googleearth/drivers.ini $HOME/earth/builds/latest/drivers.ini
 awk '/LD_LIBRARY_PATH/{print "export LC_NUMERIC=en_US.UTF-8"}1' $HOME/earth/builds/latest/googleearth | sudo tee $HOME/earth/builds/latest/googleearth > /dev/null
 
 # Enable solo screen for slaves
@@ -201,12 +186,9 @@ done
 sudo cp -r . $HOME
 cd - > /dev/null
 
-sudo cp -r $GIT_FOLDER_NAME/gnu_linux/etc/ $GIT_FOLDER_NAME/gnu_linux/patches/ $GIT_FOLDER_NAME/gnu_linux/sbin/ /
+sudo cp -r $GIT_FOLDER_NAME/gnu_linux/etc/ $GIT_FOLDER_NAME/gnu_linux/patches/ $GIT_FOLDER_NAME/gnu_linux/sbin/ / #Estem aqui!!
 
 sudo chmod 0440 /etc/sudoers.d/42-lg
-sudo ln -s /etc/apparmor.d/sbin.dhclient /etc/apparmor.d/disable/
-sudo apparmor_parser -R /etc/apparmor.d/sbin.dhclient
-sudo /etc/init.d/apparmor restart > /dev/null
 sudo chown -R $LOCAL_USER:$LOCAL_USER $HOME
 sudo chown $LOCAL_USER:$LOCAL_USER /home/lg/earth/builds/latest/drivers.ini
 
@@ -270,10 +252,20 @@ sed -i "s/\(DHCP_OCTET *= *\).*/\1$OCTET/" $HOME/personavars.txt
 sudo $HOME/bin/personality.sh $MACHINE_ID $OCTET > /dev/null
 
 # Network configuration
-sudo tee -a "/etc/network/interfaces" > /dev/null << EOM
+sudo tee -a "/etc/network/interfaces" > /dev/null 2>&1 << EOM
 auto eth0
 iface eth0 inet dhcp
+
+auto eth0:$MACHINE_ID
+iface eth0:$MACHINE_ID inet static
+address 10.42.$OCTET.$MACHINE_ID
+gateway 10.42.42.0
+netmask 255.255.255.0
 EOM
+
+# In-session network configuration
+sudo ip addr add 10.42.$OCTET.$MACHINE_ID/28 dev eth0
+
 sudo sed -i "s/\(managed *= *\).*/\1true/" /etc/NetworkManager/NetworkManager.conf
 echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"eth0\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
 sudo sed -i '/lgX.liquid.local/d' /etc/hosts
@@ -300,32 +292,20 @@ sudo tee -a "/etc/hosts.squid" > /dev/null 2>&1 << EOM
 10.42.$OCTET.7  lg7
 10.42.$OCTET.8  lg8
 EOM
-sudo tee "/etc/iptables.conf" > /dev/null << EOM
-*filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [43616:6594412]
--A INPUT -i lo -j ACCEPT
--A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
--A INPUT -p icmp -j ACCEPT
--A INPUT -p tcp -m multiport --dports 22 -j ACCEPT
--A INPUT -s 10.42.0.0/16 -p udp -m udp --dport 161 -j ACCEPT
--A INPUT -s 10.42.0.0/16 -p udp -m udp --dport 3401 -j ACCEPT
--A INPUT -p tcp -m multiport --dports 81,8111 -j ACCEPT
--A INPUT -s 10.42.$OCTET.0/24 -p tcp -m multiport --dports 80,3128,3130 -j ACCEPT
--A INPUT -s 10.42.$OCTET.0/24 -p udp -m multiport --dports 80,3128,3130 -j ACCEPT
--A INPUT -s 10.42.$OCTET.0/24 -p tcp -m multiport --dports 9335 -j ACCEPT
--A INPUT -s 10.42.$OCTET.0/24 -d 10.42.$OCTET.255/32 -p udp -j ACCEPT
--A INPUT -j DROP
--A FORWARD -j DROP
-COMMIT
-*nat
-:PREROUTING ACCEPT [52902:8605309]
-:INPUT ACCEPT [0:0]
-:OUTPUT ACCEPT [358:22379]
-:POSTROUTING ACCEPT [358:22379]
-COMMIT
-EOM
+
+# Allow iptables to forward and recieve traffic
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -F
+
+# If master, enable ssh daemon on startup
+if [ $MASTER == true ]; then
+	sudo systemctl enable ssh
+fi
+
+# In-session ssh daemon start
+sudo service ssh start
 
 # Launch on boot
 mkdir -p $HOME/.config/autostart/
@@ -353,7 +333,7 @@ echo "Cleaning up..."
 sudo apt-get -yq autoremove
 
 if [ `getconf LONG_BIT` = "64" ]; then
-echo “Installing additional libraries for 64 bit OS”
+echo "Installing additional libraries for 64 bit OS"
 sudo apt-get install -y libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxext6:i386 libglu1-mesa:i386 libglib2.0-0:i386 libsm6:i386
 fi
 
