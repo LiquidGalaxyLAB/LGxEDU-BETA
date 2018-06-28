@@ -261,7 +261,7 @@ netmask 255.255.255.0
 EOM
 
 # In-session network configuration
-sudo ip addr add 10.42.$OCTET.$MACHINE_ID/28 dev eth0
+sudo ip addr add 10.42.$OCTET.$MACHINE_ID/24 dev eth0
 
 sudo sed -i "s/\(managed *= *\).*/\1true/" /etc/NetworkManager/NetworkManager.conf
 echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"eth0\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
