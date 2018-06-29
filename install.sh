@@ -335,8 +335,6 @@ sudo apt-get install -y libfontconfig1:i386 libx11-6:i386 libxrender1:i386 libxe
 fi
 
 echo "Liquid Galaxy installation completed! :-)"
-echo "Press ENTER key to reboot now"
+echo "Press ENTER key to exit"
 read
-reboot
-
 exit 0
