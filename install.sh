@@ -16,6 +16,9 @@ EOM
 # Parameters
 MASTER=false
 INSTALL_DRIVERS=false
+INSTALL_DRIVERS_CHAR="n"
+USE_WIRELESS=false
+USE_WIRELESS_CHAR="n"
 MASTER_IP=""
 MASTER_USER=$USER
 MASTER_HOME=$HOME
@@ -24,7 +27,7 @@ LOCAL_USER=$USER
 MACHINE_ID="1"
 MACHINE_NAME="lg"$MACHINE_ID
 TOTAL_MACHINES="3"
-INSTALL_DRIVERS_CHAR="n"
+
 LG_FRAMES="lg3 lg1 lg2"
 OCTET="42"
 SCREEN_ORIENTATION="V"
@@ -54,6 +57,7 @@ fi
 read -p "Total machines count (i.e. 3): " TOTAL_MACHINES
 read -p "Unique number that identifies your Galaxy (octet) (i.e. 42): " OCTET
 read -p "Do you want to install extra drivers? (y/n): " INSTALL_DRIVERS_CHAR
+read -p "Will you use wireless? (y/n): " USE_WIRELESS_CHAR
 
 #
 # Pre-start
@@ -89,6 +93,10 @@ printf -v LG_FRAMES "%s " "${array[@]}"
 
 if [ $INSTALL_DRIVERS_CHAR == "y" ] || [$INSTALL_DRIVERS_CHAR == "Y" ] ; then
 	INSTALL_DRIVERS=true
+fi
+
+if [ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ] ; then
+	USE_WIRELESS=true
 fi
 
 cat << EOM
@@ -248,23 +256,28 @@ sed -i "s/\(DHCP_LG_FRAMES_MAX *= *\).*/\1$TOTAL_MACHINES/" $HOME/personavars.tx
 sed -i "s/\(DHCP_OCTET *= *\).*/\1$OCTET/" $HOME/personavars.txt
 sudo $HOME/bin/personality.sh $MACHINE_ID $OCTET > /dev/null
 
+INTERFACE="eth0"
+if [ $USE_WIRELESS == true ] ; then
+    INTERFACE="wlan0"
+fi
+
 # Network configuration
 sudo tee -a "/etc/network/interfaces" > /dev/null 2>&1 << EOM
-auto eth0
-iface eth0 inet dhcp
+auto $INTERFACE
+iface $INTERFACE inet dhcp
 
-auto eth0:$MACHINE_ID
-iface eth0:$MACHINE_ID inet static
+auto $INTERFACE:$MACHINE_ID
+iface $INTERFACE:$MACHINE_ID inet static
 address 10.42.$OCTET.$MACHINE_ID
 gateway 10.42.42.0
 netmask 255.255.255.0
 EOM
 
 # In-session network configuration
-sudo ip addr add 10.42.$OCTET.$MACHINE_ID/24 dev eth0
+sudo ip addr add 10.42.$OCTET.$MACHINE_ID/24 dev $INTERFACE
 
 sudo sed -i "s/\(managed *= *\).*/\1true/" /etc/NetworkManager/NetworkManager.conf
-echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"eth0\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
+echo "SUBSYSTEM==\"net\",ACTION==\"add\",ATTR{address}==\"$NETWORK_INTERFACE_MAC\",KERNEL==\"$NETWORK_INTERFACE\",NAME=\"$INTERFACE\"" | sudo tee /etc/udev/rules.d/10-network.rules > /dev/null
 sudo sed -i '/lgX.liquid.local/d' /etc/hosts
 sudo sed -i '/kh.google.com/d' /etc/hosts
 sudo sed -i '/10.42./d' /etc/hosts
