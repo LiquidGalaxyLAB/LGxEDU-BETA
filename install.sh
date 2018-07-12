@@ -99,6 +99,11 @@ if [ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ] ; then
 	USE_WIRELESS=true
 fi
 
+INTERFACE="eth0"
+if [ $USE_WIRELESS == true ] ; then
+    INTERFACE="wlan0"
+fi
+
 cat << EOM
 
 Liquid Galaxy will be installed with the following configuration:
@@ -113,7 +118,7 @@ GIT_URL: $GIT_URL
 GIT_FOLDER: $GIT_FOLDER_NAME
 EARTH_DEB: $EARTH_DEB
 EARTH_FOLDER: $EARTH_FOLDER
-NETWORK_INTERFACE: $NETWORK_INTERFACE
+NETWORK_INTERFACE: $INTERFACE
 NETWORK_MAC_ADDRESS: $NETWORK_INTERFACE_MAC
 
 Is it correct? Press any key to continue or CTRL-C to exit
@@ -255,11 +260,6 @@ sed -i "s/\(DHCP_LG_FRAMES *= *\).*/\1\"$LG_FRAMES\"/" $HOME/personavars.txt
 sed -i "s/\(DHCP_LG_FRAMES_MAX *= *\).*/\1$TOTAL_MACHINES/" $HOME/personavars.txt
 sed -i "s/\(DHCP_OCTET *= *\).*/\1$OCTET/" $HOME/personavars.txt
 sudo $HOME/bin/personality.sh $MACHINE_ID $OCTET > /dev/null
-
-INTERFACE="eth0"
-if [ $USE_WIRELESS == true ] ; then
-    INTERFACE="wlan0"
-fi
 
 # Network configuration
 sudo tee -a "/etc/network/interfaces" > /dev/null 2>&1 << EOM
