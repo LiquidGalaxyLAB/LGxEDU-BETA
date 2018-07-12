@@ -91,12 +91,13 @@ done
 
 printf -v LG_FRAMES "%s " "${array[@]}"
 
-if [[ $INSTALL_DRIVERS_CHAR == "y" ] || [$INSTALL_DRIVERS_CHAR == "Y" ]] ; then
+if [ $INSTALL_DRIVERS_CHAR == "y" ] || [$INSTALL_DRIVERS_CHAR == "Y" ] then
 	INSTALL_DRIVERS=true
 fi
 
-if [[ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ]] ; then
+if [ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ] then
 	INTERFACE="wlan0"
+	echo "FUK ME"
 fi
 
 cat << EOM
