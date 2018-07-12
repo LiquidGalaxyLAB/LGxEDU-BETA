@@ -97,7 +97,6 @@ fi
 
 if [ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ]; then
 	INTERFACE="wlan0"
-	echo "FUK ME"
 fi
 
 cat << EOM
