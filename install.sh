@@ -17,7 +17,7 @@ EOM
 MASTER=false
 INSTALL_DRIVERS=false
 INSTALL_DRIVERS_CHAR="n"
-USE_WIRELESS=false
+INTERFACE="eth0"
 USE_WIRELESS_CHAR="n"
 MASTER_IP=""
 MASTER_USER=$USER
@@ -91,17 +91,12 @@ done
 
 printf -v LG_FRAMES "%s " "${array[@]}"
 
-if [ $INSTALL_DRIVERS_CHAR == "y" ] || [$INSTALL_DRIVERS_CHAR == "Y" ] ; then
+if [[ $INSTALL_DRIVERS_CHAR == "y" ] || [$INSTALL_DRIVERS_CHAR == "Y" ]] ; then
 	INSTALL_DRIVERS=true
 fi
 
-if [ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ] ; then
-	USE_WIRELESS=true
-fi
-
-INTERFACE="eth0"
-if [ $USE_WIRELESS == true ] ; then
-    INTERFACE="wlan0"
+if [[ $USE_WIRELESS_CHAR == "y" ] || [$USE_WIRELESS_CHAR == "Y" ]] ; then
+	INTERFACE="wlan0"
 fi
 
 cat << EOM
