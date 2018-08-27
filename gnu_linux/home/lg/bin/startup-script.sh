@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Start ssh service if not started
+if [[ -z $(ps -A | grep sshd) ]]; then
+    sudo service ssh start
+fi
+
 echo "DISPLAY = \"$DISPLAY\"."
 echo "DISPLAY_portion = \"${DISPLAY##*\.}\"."
 
