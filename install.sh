@@ -235,25 +235,24 @@ if [ $MASTER == true ]; then
 fi
 
 # Screens configuration
-cat > $HOME/personavars.txt << 'EOM'
-DHCP_LG_FRAMES="lg3 lg1 lg2"
-DHCP_LG_FRAMES_MAX=3
+cat > $HOME/personavars.txt << EOF
+DHCP_LG_FRAMES=$LG_FRAMES
+DHCP_LG_FRAMES_MAX=$TOTAL_MACHINES
 
 FRAME_NO=$(cat /home/lg/frame 2>/dev/null)
 DHCP_LG_SCREEN="$(( ${FRAME_NO} + 1 ))"
 DHCP_LG_SCREEN_COUNT=1
-DHCP_OCTET=42
+DHCP_OCTET=$OCTET
 DHCP_LG_PHPIFACE="http://lg1:81/"
+DHCP_NETWORK_INTERFACE=$INTERFACE
 
 DHCP_EARTH_PORT=45678
 DHCP_EARTH_BUILD="latest"
 DHCP_EARTH_QUERY="/tmp/query.txt"
 
 DHCP_MPLAYER_PORT=45680
-EOM
-sed -i "s/\(DHCP_LG_FRAMES *= *\).*/\1\"$LG_FRAMES\"/" $HOME/personavars.txt
-sed -i "s/\(DHCP_LG_FRAMES_MAX *= *\).*/\1$TOTAL_MACHINES/" $HOME/personavars.txt
-sed -i "s/\(DHCP_OCTET *= *\).*/\1$OCTET/" $HOME/personavars.txt
+EOF
+
 sudo $HOME/bin/personality.sh $MACHINE_ID $OCTET > /dev/null
 
 # Network configuration
