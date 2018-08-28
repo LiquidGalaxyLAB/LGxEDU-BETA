@@ -148,7 +148,7 @@ echo "Upgrading system packages ..."
 sudo apt-get -yq upgrade
 
 echo "Installing new packages..."
-sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip wish network-manager
+sudo apt-get install -yq git chromium-browser nautilus openssh-server sshpass squid3 squid-cgi apache2 xdotool unclutter zip wish network-manager bc
 
 if [ $INSTALL_DRIVERS == true ] ; then
 	echo "Installing extra drivers..."
@@ -156,10 +156,8 @@ if [ $INSTALL_DRIVERS == true ] ; then
 fi
 
 echo "Installing Google Earth..."
-sudo apt install googleearth-package -y
-make-googleearth-package --force
-sudo apt-get -f install -y
-sudo dpkg -i googleearth_6.0.3.2197+1.2.0-1_amd64.deb
+wget https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb
+sudo dpkg -i google-earth-pro-stable_current_amd64.deb
 sudo apt-get -f install -y
 
 
