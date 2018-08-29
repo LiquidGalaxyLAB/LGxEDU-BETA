@@ -156,8 +156,7 @@ if [ $INSTALL_DRIVERS == true ] ; then
 fi
 
 echo "Installing Google Earth..."
-wget https://dl.google.com/dl/earth/client/current/google-earth-pro-stable_current_amd64.deb
-sudo dpkg -i google-earth-pro-stable_current_amd64.deb
+sudo dpkg -i google-earth-pro-stable_7.1.8.3036-r0_amd64.deb
 sudo apt-get -f install -y
 
 
