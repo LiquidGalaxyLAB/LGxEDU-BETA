@@ -312,6 +312,10 @@ sudo service ssh start
 mkdir -p $HOME/.config/autostart/
 echo -e "[Desktop Entry]\nName=LG\nExec=bash "$HOME"/bin/startup-script.sh\nType=Application" > $HOME"/.config/autostart/lg.desktop"
 
+# Launch with 'liquidgalaxy' command
+echo "alias liquidgalaxy='bash /home/$USER/bin/startup-script.sh'" >> ~/.bashrc
+source ~/.bashrc
+
 # Web interface
 if [ $MASTER == true ]; then
 	echo "Installing web interface (master only)..."

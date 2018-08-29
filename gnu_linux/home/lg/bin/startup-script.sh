@@ -18,6 +18,19 @@ if [[ -z $(ps -A | grep sshd) ]]; then
     sudo service ssh start
 fi
 
+# Add IP to interface if not done yet
+OCTET=$(cat ~/personavars.txt | grep DHCP_OCTET | sed 's/=/\ /g' | awk '{print $2}')
+MACHINE_ID=$(cat ~/personavars.txt | grep DHCP_LG_SCREEN\= | sed 's/=/\ /g' | awk '{print $2}' | sed 's/\"//g') 
+INTERFACE=$(cat ~/personavars.txt | grep DHCP_NETWORK_INTERFACE | sed 's/=/\ /g' | awk '{print $2}')
+
+echo "Octet = $OCTET"
+echo "Machine ID = $MACHINE_ID" 
+echo "Interface = $INTERFACE"
+
+if [[ -z $(/sbin/ifconfig | grep 10.42) ]]; then
+    sudo ip addr add 10.42.$OCTET.$MACHINE_ID/24 dev $INTERFACE
+fi
+
 echo "DISPLAY = \"$DISPLAY\"."
 echo "DISPLAY_portion = \"${DISPLAY##*\.}\"."
 
