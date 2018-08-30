@@ -233,7 +233,7 @@ fi
 
 # Screens configuration
 cat > $HOME/personavars.txt << EOF
-DHCP_LG_FRAMES=$LG_FRAMES
+DHCP_LG_FRAMES="$LG_FRAMES"
 DHCP_LG_FRAMES_MAX=$TOTAL_MACHINES
 
 FRAME_NO=$(cat /home/lg/frame 2>/dev/null)
@@ -315,6 +315,12 @@ echo -e "[Desktop Entry]\nName=LG\nExec=bash "$HOME"/bin/startup-script.sh\nType
 # Launch with 'liquidgalaxy' command
 echo "alias liquidgalaxy='bash /home/$USER/bin/startup-script.sh'" >> ~/.bashrc
 source ~/.bashrc
+
+# Chromebooks launch on terminal
+echo "liquidgalaxy" >> ~/.bashrc
+
+# Add lg user sudo permissions (NOPASSWD) for ~/bin/startup-script.sh
+echo 'lg ALL=(ALL) NOPASSWD: /home/lg/bin/startup-script.sh' sudo EDITOR='tee -a' visudo
 
 # Web interface
 if [ $MASTER == true ]; then
